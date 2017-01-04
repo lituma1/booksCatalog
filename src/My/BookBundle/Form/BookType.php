@@ -5,6 +5,7 @@ namespace My\BookBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 
 class BookType extends AbstractType
 {
@@ -13,7 +14,8 @@ class BookType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('author')->add('title')->add('price')->add('iban')->add('category')        ;
+        $builder->add('author')->add('title')->add('price')->add('iban')
+                ->add('category', EntityType::class, array('class' => 'MyBookBundle:Category', 'choice_label' => 'name'))        ;
     }
     
     /**
