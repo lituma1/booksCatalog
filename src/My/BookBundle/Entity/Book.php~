@@ -155,27 +155,4 @@ class Book
     {
         return $this->iban;
     }
-
-    /**
-     * Set category
-     *
-     * @param \My\BookBundle\Entity\Category $category
-     * @return Book
-     */
-    public function setCategory(\My\BookBundle\Entity\Category $category = null)
-    {
-        $this->category = $category;
-
-        return $this;
-    }
-
-    /**
-     * Get category
-     *
-     * @return \My\BookBundle\Entity\Category 
-     */
-    public function getCategory()
-    {
-        return $this->category;
-    }
 }
