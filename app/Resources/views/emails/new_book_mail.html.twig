@@ -1,0 +1,10 @@
+{# empty Twig template #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h3>Dodałeś nową książkę w kategorii fantasy!</h3>
+    <p>Tytuł: {{ book.title }} </p>
+    <p>Autor: {{book.author}} </p>
+    <p>Cena: {{book.price}} </p>
+    <p>Iban: {{book.iban}}</p>
+{% endblock %}
