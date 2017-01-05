@@ -139,7 +139,6 @@ class BookController extends Controller {
          $message = \Swift_Message::newInstance()
                         ->setSubject('New Book')
                         ->setFrom('lituma1@gmail.com')
-                        ->setTo('lituma1@motobloger.pl')
                         ->setBody(
                         $this->renderView(
                                 'emails/new_book_mail.html.twig', array('book' => $book)
