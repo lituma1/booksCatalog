@@ -5,29 +5,29 @@ namespace My\BookBundle\Controller;
 use My\BookBundle\Entity\Book;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Book controller.
  *
  * @Route("book")
  */
-class BookController extends Controller
-{
+class BookController extends Controller {
+
     /**
      * Lists all book entities.
      *
      * @Route("/", name="book_index")
      * @Method("GET")
      */
-    public function indexAction()
-    {
+    public function indexAction() {
         $em = $this->getDoctrine()->getManager();
 
         $books = $em->getRepository('MyBookBundle:Book')->findAll();
 
         return $this->render('book/index.html.twig', array(
-            'books' => $books,
+                    'books' => $books,
         ));
     }
 
@@ -37,8 +37,7 @@ class BookController extends Controller
      * @Route("/new", name="book_new")
      * @Method({"GET", "POST"})
      */
-    public function newAction(Request $request)
-    {
+    public function newAction(Request $request) {
         $book = new Book();
         $form = $this->createForm('My\BookBundle\Form\BookType', $book);
         $form->handleRequest($request);
@@ -47,13 +46,17 @@ class BookController extends Controller
             $em = $this->getDoctrine()->getManager();
             $em->persist($book);
             $em->flush($book);
+            if ($book->isFantasyBook()) {
+                $this->sendMail($book);
+            }
+
 
             return $this->redirectToRoute('book_show', array('id' => $book->getId()));
         }
 
         return $this->render('book/new.html.twig', array(
-            'book' => $book,
-            'form' => $form->createView(),
+                    'book' => $book,
+                    'form' => $form->createView(),
         ));
     }
 
@@ -63,13 +66,12 @@ class BookController extends Controller
      * @Route("/{id}", name="book_show")
      * @Method("GET")
      */
-    public function showAction(Book $book)
-    {
+    public function showAction(Book $book) {
         $deleteForm = $this->createDeleteForm($book);
 
         return $this->render('book/show.html.twig', array(
-            'book' => $book,
-            'delete_form' => $deleteForm->createView(),
+                    'book' => $book,
+                    'delete_form' => $deleteForm->createView(),
         ));
     }
 
@@ -79,22 +81,24 @@ class BookController extends Controller
      * @Route("/{id}/edit", name="book_edit")
      * @Method({"GET", "POST"})
      */
-    public function editAction(Request $request, Book $book)
-    {
+    public function editAction(Request $request, Book $book) {
         $deleteForm = $this->createDeleteForm($book);
         $editForm = $this->createForm('My\BookBundle\Form\BookType', $book);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
             $this->getDoctrine()->getManager()->flush();
-
+            if($book->isFantasyBook()) {
+                $this->sendMail($book);
+            }
+            
             return $this->redirectToRoute('book_edit', array('id' => $book->getId()));
         }
 
         return $this->render('book/edit.html.twig', array(
-            'book' => $book,
-            'edit_form' => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
+                    'book' => $book,
+                    'edit_form' => $editForm->createView(),
+                    'delete_form' => $deleteForm->createView(),
         ));
     }
 
@@ -104,8 +108,7 @@ class BookController extends Controller
      * @Route("/{id}", name="book_delete")
      * @Method("DELETE")
      */
-    public function deleteAction(Request $request, Book $book)
-    {
+    public function deleteAction(Request $request, Book $book) {
         $form = $this->createDeleteForm($book);
         $form->handleRequest($request);
 
@@ -114,7 +117,7 @@ class BookController extends Controller
             $em->remove($book);
             $em->flush($book);
         }
-
+        
         return $this->redirectToRoute('book_index');
     }
 
@@ -125,12 +128,23 @@ class BookController extends Controller
      *
      * @return \Symfony\Component\Form\Form The form
      */
-    private function createDeleteForm(Book $book)
-    {
+    private function createDeleteForm(Book $book) {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('book_delete', array('id' => $book->getId())))
-            ->setMethod('DELETE')
-            ->getForm()
+                        ->setAction($this->generateUrl('book_delete', array('id' => $book->getId())))
+                        ->setMethod('DELETE')
+                        ->getForm()
         ;
     }
+    private function sendMail(Book $book) {
+         $message = \Swift_Message::newInstance()
+                        ->setSubject('New Book')
+                        ->setFrom('lituma1@gmail.com')
+                        ->setTo('lituma1@motobloger.pl')
+                        ->setBody(
+                        $this->renderView(
+                                'emails/new_book_mail.html.twig', array('book' => $book)
+                        ), 'text/html');
+                $this->get('mailer')->send($message);
+    }
+
 }
