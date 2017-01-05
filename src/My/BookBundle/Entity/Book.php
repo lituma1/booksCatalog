@@ -178,4 +178,7 @@ class Book
     {
         return $this->category;
     }
+    public function isFantasyBook() {
+        return $this->getCategory()->getName() == 'fantasy';
+    }
 }
